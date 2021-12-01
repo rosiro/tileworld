@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="static/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body {
+          color:white;
+          background-color:black;
+      }
+      .block {
+          width:36px;
+          height:36px;
+          margin:10px;
+          float:left;
+      }
+      .block_mini {
+          width:18px;
+          height:18px;
+          margin-top:4px;
+          margin-left:6px;
+          float:left;
+      }
+      // field
+      .glass {
+          background-color:#46c940;
+          display:block;
+          text-align:center;
+      }
+      .wheat {
+          background-color:#bdb35e;
+          display:block;
+          text-align:center;
+      }
+      .tree {
+          background-color:#0a9b03;
+          display:block;
+          text-align:center;
+      }
+      .soil {
+          background-color:#c4906a;
+          display:block;
+          text-align:center;
+      }
+      .wood {
+          background-color:#c4906a;
+          display:block;
+          text-align:center;
+      }
+      .sand {
+          background-color:#bdb35e;
+          display:block;
+          text-align:center;
+      }
+      .clay {
+          background-color:#686560;
+          display:block;
+          text-align:center;
+      }
+      .coal {
+          background-color:#382c1b;
+          display:block;
+          text-align:center;
+      }
+      .rock {
+          background-color:#6d532d;
+          display:block;
+          text-align:center;
+      }
+      .iron {
+          background-color:#6d532d;
+          display:block;
+          text-align:center;
+      }
+      .silver {
+          background-color:#dedede;
+          display:block;
+          text-align:center;
+      }
+      .gold {
+          background-color:#ffe408;
+          display:block;
+          text-align:center;
+      }
+      .glass {
+          background-color:green;
+          display:block;
+          text-align:center;
+      }
+      .umi {
+          background-color:blue;
+          display:block;
+          text-align:center;
+      }
+      .yama {
+          background-color: darkgreen;
+          display:block;
+          text-align:center;
+      }
+      .blockClickanim {
+          animation-name: colortowhite;
+          animation-duration: 4s;
+          border: 1px solid;
+      }
+      @keyframes colortowhite {
+          to { border-width: 4px; border-color: white;}
+      }
+    </style>
+    <title>TITLE</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <h1>test</h1>
+        <div class="col-md-9">
+          <div id="field"></div>
+
+          <br clear="all">
+          <div id="building"><h2>建造物</h2></div>
+
+          <br clear="all">
+          <div id="TODO">
+            <h2>TODO</h2>
+            <ul>
+              <li>1.percent</li>
+            </ul>
+          </div>
+        </div>
+        <div id="resource_status" class="col-md-3">
+        </div>
+      </div>
+    </div>
+    <script src="static/js/bootstrap.bundle.min.js"></script>
+    <script src="static/js/jquery-3.6.0.min.js"></script>
+    <script>
+
+      var resource = {
+          "glass": {
+              "name_ja" : '草', "name_en" : 'glass', "show": true, "field" : true, "type": "field",
+              "gets": [ { 'item': 'wheat', val: 1, probability: 50 }, { 'item': 'soil', val: 1, probability: 50 } ],
+              "nexts": [ { 'item': "yama", val: 0 }, { 'item': "umi", val: 0 } ],
+              "level": 1, "time": 1000, "next": 10, "value": 0,
+          },
+          "tree": {
+              "name_ja" : '木', "name_en" : 'tree', "show": true, "field" : true, "type": "field",
+              "gets": [ { 'item': 'wood', val: 1, probability: 100 } ],
+              "nexts": [ ],
+              "level": 1, "time": 1000, "next": 10, "value": 0,
+          },
+          "wood": {
+              "name_ja" : '木材', "name_en" : 'wood', "show": true, "field" : true, "type": "field",
+              "gets": [ ],
+              "nexts": [ ],
+              "level": 1, "time": 1000, "next": 10, "value": 0,
+          },
+          "wheat": {
+              "name_ja" : '小麦', "name_en" : 'wheat', "show": false, "field" : true, "type": "field",
+              "gets": [ ],
+              "nexts": [ ],
+              "level": 1, "time": 1000, "next": 10, "value": 0,
+          },
+          "soil": {
+              "name_ja" : '土', "name_en" : 'soil', "show": true, "field" : true, "type": "field",
+              "gets": [ { 'item': 'clay', val: 1, probability: 10 }, { 'item': 'coal', val: 1,  probability: 10 } ],
+              "nexts": [ ],
+              "level": 1, "time": 1000, "next": 10, "value": 0,
+          },
+          "sand": {
+              "name_ja" : '砂', "name_en" : 'sand', "show": true, "field" : true, "type": "field",
+              "gets": [  ],
+              "nexts": [ ],
+              "level": 1, "time": 1000, "next": 20, "value": 0,
+          },
+          "clay": {
+              "name_ja" : '粘土', "name_en" : 'clay', "show": false, "field" : false, "type": "field",
+              "gets": [  ],
+              "nexts": [ ],
+              "level": 1, "time": 1000, "next": 20, "value": 0,
+          },
+          "rock": {
+              "name_ja" : '岩', "name_en" : 'rock', "show": true, "field" : true, "type": "field",
+              "gets": [ { 'item': 'iron', val: 1, probability: 10 }, { 'item': 'silver', val: 1, probability: 1 }, { 'item': 'gold', val: 1, probability: 0.1 } ],
+              "nexts": [ ],
+              "level": 1, "time": 1000, "next": 100, "value": 0,
+          },
+          "coal": {
+              "name_ja" : '石炭', "name_en" : 'coal', "show": false, "field" : false, "type": "field",
+              "gets": [],
+              "nexts": [],
+              "level": 1, "time": 1000, "next": 20, "value": 0,
+          },
+          "iron": {
+              "name_ja" : '鉄', "name_en" : 'iron', "show": false, "field" : false, "type": "field",
+              "gets": [],
+              "nexts": [],
+              "level": 1, "time": 10000, "next": 30, "value": 0,
+          },
+          "silver": {
+              "name_ja" : '銀', "name_en" : 'silver', "show": false, "field" : false, "type": "field",
+              "gets": [],
+              "nexts": [],
+              "level": 1, "time": 10000, "next": 30, "value": 0,
+          },
+          "gold": {
+              "name_ja" : '金', "name_en" : 'gold', "show": false, "field" : false, "type": "field",
+              "gets": [],
+              "nexts": [],
+              "level": 1, "time": 10000, "next": 30, "value": 0,
+          },
+          
+      };
+
+      function click_resource(target_id){
+          const this_resource = resource[target_id];
+          console.log(this_resource);
+          if(this_resource){
+              start_work_resouceget(target_id);
+              setTimeout(end_work_resourceget, this_resource.time, target_id);
+          }
+      }
+
+      function next_num(next, level){
+          let next_num = next * level;
+          return next_num 
+      }
+
+      // SHOW DISPLAY
+      function show_status (){
+          var status_html = '<h2>収穫物</h2>';
+          for (let key in resource) {
+              if(resource[key].show == true){
+                  var next_val = next_num(resource[key].next, resource[key].level);
+                  status_html += '<div><div class="block_mini ' + key + '"></div>' + resource[key].name_ja + '[' + resource[key].level + '] : <span id="' + key + '" class="">' + resource[key].value  + ' / ' + next_val + '</span><br clear="all"></div>';
+              }
+          }
+          $('#resource_status').html(status_html);
+      }
+
+      function add_resource_value(resource_key, add_val){
+          if (resource_key in resource) {
+              var now_val = Math.round((resource[resource_key].value + add_val) * 10) / 10;
+              resource[resource_key].value = now_val;
+              $('#' + resource_key).text(resource[resource_key].value);
+          }
+      }
+      
+      function update_resource_value (resource_key, update_val) {
+          if (resource_key in resource) {
+              var now_val = Math.round(update_val * 10) / 10;
+              resource[resource_key].value = now_val;
+              $('#' + resource_key).text(resource[resource_key].value);
+          }
+      }
+
+      function animation_workfill(target_id){
+          console.log(animation_workfill);
+      }
+
+      function start_work_resouceget(target_id){
+          $('#' + target_id).addClass('blockClickanim');
+      }
+
+
+      function end_work_resourceget(target_id){
+          console.log('end_work_resourceget + ' + target_id);
+          $('#' + target_id).removeClass('blockClickanim');
+
+          var clicked_resource = $('#' + target_id).data('resource');
+          if(clicked_resource){
+
+              // ADD VAL
+              const gets = resource[clicked_resource].gets;
+              gets.forEach(function(getitem){
+                  if(resource[getitem.item].show == false ) resource[getitem.item].show = true;
+                  var getitem_val = getitem.val;
+                  console.log(getitem_val);
+                  if(resource[getitem.item].level > 1){
+                      getitem_val = getitem.val + (getitem.val * resource[getitem.item].level * 0.1);
+                  }
+                  add_resource_value(getitem.item, getitem_val);
+
+                  // levelup check
+                  let next_val = next_num(resource[getitem.item].next, resource[getitem.item].level);
+                  if(next_val <= resource[getitem.item].value){
+                      resource[getitem.item].level = resource[getitem.item].level + 1;
+                      update_resource_value(getitem.item, resource[getitem.item].value - next_val);
+
+                      // NEXT
+                      const nexts = resource[clicked_resource].nexts;
+                      nexts.forEach(function(nextitem){
+                          var get_key = nextitem.item;
+                          var get_val = nextitem.val;
+                          if(get_key != target_id){
+                              update_resource_value (get_key, 0);
+                              resource[get_key].show = true;
+                          }
+                      });
+
+                  }
+                  
+              });
+              
+              
+          }
+
+          set_resource();
+          show_status();
+      }
+      
+      function set_resource (){
+          var field_html = '<h2>世界</h2>';
+          for (let key in resource) {
+              if(resource[key].show == true && resource[key].type == "field"){
+                  field_html += '<div class="block ' + key + ' anim" id="' + key + '" onclick="click_resource(\'' + key + '\');" data-resource="' + key + '">' + resource[key].name_ja + '</div>';
+              }
+          }
+          $('#field').html(field_html);
+
+          var building_html = '<h2>建造物</h2>';
+          for (let key in resource) {
+              if(resource[key].show == true && resource[key].type == "building"){
+                  building += '<div class="block ' + key + ' anim" id="' + key + '" onclick="click_resource(\'' + key + '\');" data-resource="' + key + '">' + resource[key].name_ja + '</div>';
+              }
+          }
+          $('#building').html(building);
+      }
+
+
+
+
+
+
+
+
+      $(function(){
+          // INIT
+          set_resource();
+          show_status();
+      });
+    </script>
+  </body>
+</html>
