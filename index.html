@@ -118,6 +118,7 @@
     <div class="container">
       <div class="row">
         <h1>test game</h1>
+        <div id="debug" class="col-md-12"></div>
         <div class="col-md-9">
           <div id="field" class="area"></div>
           <div id="human" class="area"><h2>人</h2></div>
@@ -130,14 +131,14 @@
           <div id="TODO">
             <h2>TODO</h2>
             <ul>
-              <li>収穫物の確率処理</li>
+              <li>野生植物の自然増の実装</li>
               <li>人の実装</li>
               <li>動物の実装</li>
+              <li><s>収穫物の確率処理</s></li>
             </ul>
           </div>
         </div>
-        <div id="resource_status" class="col-md-3">
-        </div>
+        <div id="resource_status" class="col-md-3"></div>
       </div>
       <div id="footer">
         version <span id="version"></span>
@@ -146,79 +147,67 @@
     <script src="static/js/bootstrap.bundle.min.js"></script>
     <script src="static/js/jquery-3.6.0.min.js"></script>
     <script>
-      const VERSION = '2021.12.1';
+      const VERSION = '2021.12.2';
       var resource = {
           "glass": {
-              "name_ja" : '草', "name_en" : 'glass', "show": true, "field" : true, "type": "field",
+              "name_ja" : '草', "name_en" : 'glass', "show": true, "field" : true, "type": "field", "level": 1, "time": 1000, "next": 10, "value": 0, nis: 0.01,
               "gets": [ { 'item': 'wheat', val: 1, probability: 50 }, { 'item': 'soil', val: 1, probability: 50 } ],
               "nexts": [ { 'item': "yama", val: 0 }, { 'item': "umi", val: 0 } ],
-              "level": 1, "time": 1000, "next": 10, "value": 0,
           },
           "tree": {
-              "name_ja" : '木', "name_en" : 'tree', "show": true, "field" : true, "type": "field",
+              "name_ja" : '木', "name_en" : 'tree', "show": true, "field" : true, "type": "field", "level": 1, "time": 1000, "next": 10, "value": 0, nis: 0.01,
               "gets": [ { 'item': 'wood', val: 1, probability: 100 } ],
               "nexts": [ ],
-              "level": 1, "time": 1000, "next": 10, "value": 0,
           },
           "wood": {
-              "name_ja" : '木材', "name_en" : 'wood', "show": true, "field" : true, "type": "field",
+              "name_ja" : '木材', "name_en" : 'wood', "show": true, "field" : true, "type": "field", "level": 1, "time": 1000, "next": 10, "value": 0, nis: 0,
               "gets": [ ],
               "nexts": [ ],
-              "level": 1, "time": 1000, "next": 10, "value": 0,
           },
           "wheat": {
-              "name_ja" : '小麦', "name_en" : 'wheat', "show": false, "field" : true, "type": "field",
+              "name_ja" : '小麦', "name_en" : 'wheat', "show": false, "field" : true, "type": "field", "level": 1, "time": 1000, "next": 10, "value": 0, nis: 0,
               "gets": [ ],
               "nexts": [ ],
-              "level": 1, "time": 1000, "next": 10, "value": 0,
           },
           "soil": {
-              "name_ja" : '土', "name_en" : 'soil', "show": true, "field" : true, "type": "field",
+              "name_ja" : '土', "name_en" : 'soil', "show": true, "field" : true, "type": "field", "level": 1, "time": 1000, "next": 10, "value": 0, nis: 0,
               "gets": [ { 'item': 'clay', val: 1, probability: 10 }, { 'item': 'coal', val: 1,  probability: 10 } ],
               "nexts": [ ],
-              "level": 1, "time": 1000, "next": 10, "value": 0,
           },
           "sand": {
-              "name_ja" : '砂', "name_en" : 'sand', "show": true, "field" : true, "type": "field",
+              "name_ja" : '砂', "name_en" : 'sand', "show": true, "field" : true, "type": "field", "level": 1, "time": 1000, "next": 20, "value": 0, nis: 0,
               "gets": [  ],
               "nexts": [ ],
-              "level": 1, "time": 1000, "next": 20, "value": 0,
           },
           "clay": {
-              "name_ja" : '粘土', "name_en" : 'clay', "show": false, "field" : false, "type": "field",
+              "name_ja" : '粘土', "name_en" : 'clay', "show": false, "field" : false, "type": "field", "level": 1, "time": 1000, "next": 20, "value": 0, nis: 0,
               "gets": [  ],
               "nexts": [ ],
-              "level": 1, "time": 1000, "next": 20, "value": 0,
           },
           "rock": {
-              "name_ja" : '岩', "name_en" : 'rock', "show": true, "field" : true, "type": "field",
+              "name_ja" : '岩', "name_en" : 'rock', "show": true, "field" : true, "type": "field", "level": 1, "time": 1000, "next": 100, "value": 0, nis: 0,
               "gets": [ { 'item': 'iron', val: 1, probability: 10 }, { 'item': 'silver', val: 1, probability: 1 }, { 'item': 'gold', val: 1, probability: 0.1 } ],
               "nexts": [ ],
-              "level": 1, "time": 1000, "next": 100, "value": 0,
           },
           "coal": {
-              "name_ja" : '石炭', "name_en" : 'coal', "show": false, "field" : false, "type": "field",
+              "name_ja" : '石炭', "name_en" : 'coal', "show": false, "field" : false, "type": "field", "level": 1, "time": 1000, "next": 20, "value": 0, nis: 0,
               "gets": [],
               "nexts": [],
-              "level": 1, "time": 1000, "next": 20, "value": 0,
           },
           "iron": {
-              "name_ja" : '鉄', "name_en" : 'iron', "show": false, "field" : false, "type": "field",
+              "name_ja" : '鉄', "name_en" : 'iron', "show": false, "field" : false, "type": "field", "level": 1, "time": 10000, "next": 30, "value": 0, nis: 0,
               "gets": [],
               "nexts": [],
-              "level": 1, "time": 10000, "next": 30, "value": 0,
           },
           "silver": {
-              "name_ja" : '銀', "name_en" : 'silver', "show": false, "field" : false, "type": "field",
+              "name_ja" : '銀', "name_en" : 'silver', "show": false, "field" : false, "type": "field", "level": 1, "time": 10000, "next": 30, "value": 0, nis: 0,
               "gets": [],
               "nexts": [],
-              "level": 1, "time": 10000, "next": 30, "value": 0,
           },
           "gold": {
-              "name_ja" : '金', "name_en" : 'gold', "show": false, "field" : false, "type": "field",
+              "name_ja" : '金', "name_en" : 'gold', "show": false, "field" : false, "type": "field", "level": 1, "time": 10000, "next": 30, "value": 0, nis: 0,
               "gets": [],
               "nexts": [],
-              "level": 1, "time": 10000, "next": 30, "value": 0,
           },
           
       };
@@ -243,7 +232,7 @@
           for (let key in resource) {
               if(resource[key].show == true){
                   var next_val = next_num(resource[key].next, resource[key].level);
-                  status_html += '<div><div class="block_mini ' + key + '"></div>' + resource[key].name_ja + '[' + resource[key].level + '] : <span id="' + key + '" class="">' + resource[key].value  + ' / ' + next_val + '</span><br clear="all"></div>';
+                  status_html += '<div><div class="block_mini ' + key + '"></div>' + resource[key].name_ja + ' lv:' + resource[key].level + ' : <span id="' + key + '" class="">' + resource[key].value  + ' / ' + next_val + '</span><br clear="all"></div>';
               }
           }
           $('#resource_status').html(status_html);
@@ -273,9 +262,15 @@
           $('#' + target_id).addClass('blockClickanim');
       }
 
+      function getRandomInt(min, max) {
+          min = Math.ceil(min);
+          max = Math.floor(max);
+          return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+      }
 
       function end_work_resourceget(target_id){
           console.log('end_work_resourceget + ' + target_id);
+          var debug = '';
           $('#' + target_id).removeClass('blockClickanim');
 
           var clicked_resource = $('#' + target_id).data('resource');
@@ -284,33 +279,37 @@
               // ADD VAL
               const gets = resource[clicked_resource].gets;
               gets.forEach(function(getitem){
-                  if(resource[getitem.item].show == false ) resource[getitem.item].show = true;
-                  var getitem_val = getitem.val;
-                  console.log(getitem_val);
-                  if(resource[getitem.item].level > 1){
-                      getitem_val = getitem.val + (getitem.val * resource[getitem.item].level * 0.1);
+                  let strike = 100 / getitem.probability;
+                  let randomnum = getRandomInt(1,strike);
+                  debug += 'getitem? ' + getitem.item + ' ' + getitem.probability + '%<br>';
+                  if(randomnum == 1 || strike == 1){
+                      if(resource[getitem.item].show == false ) resource[getitem.item].show = true;
+                      var getitem_val = getitem.val;
+                      console.log(getitem_val);
+                      if(resource[getitem.item].level > 1){
+                          getitem_val = getitem.val + (getitem.val * resource[getitem.item].level * 0.1);
+                      }
+                      add_resource_value(getitem.item, getitem_val);
+
+                      // levelup check
+                      let next_val = next_num(resource[getitem.item].next, resource[getitem.item].level);
+                      if(next_val <= resource[getitem.item].value){
+                          resource[getitem.item].level = resource[getitem.item].level + 1;
+                          update_resource_value(getitem.item, resource[getitem.item].value - next_val);
+
+                          // NEXT
+                          const nexts = resource[clicked_resource].nexts;
+                          nexts.forEach(function(nextitem){
+                              var get_key = nextitem.item;
+                              var get_val = nextitem.val;
+                              if(get_key != target_id){
+                                  update_resource_value (get_key, 0);
+                                  resource[get_key].show = true;
+                              }
+                          });
+                      }
+
                   }
-                  add_resource_value(getitem.item, getitem_val);
-
-                  // levelup check
-                  let next_val = next_num(resource[getitem.item].next, resource[getitem.item].level);
-                  if(next_val <= resource[getitem.item].value){
-                      resource[getitem.item].level = resource[getitem.item].level + 1;
-                      update_resource_value(getitem.item, resource[getitem.item].value - next_val);
-
-                      // NEXT
-                      const nexts = resource[clicked_resource].nexts;
-                      nexts.forEach(function(nextitem){
-                          var get_key = nextitem.item;
-                          var get_val = nextitem.val;
-                          if(get_key != target_id){
-                              update_resource_value (get_key, 0);
-                              resource[get_key].show = true;
-                          }
-                      });
-
-                  }
-                  
               });
               
               
@@ -318,6 +317,8 @@
 
           set_resource();
           show_status();
+          $('#debug').html(debug);
+
       }
       
       function set_resource (){
@@ -339,6 +340,9 @@
       }
 
 
+      function natural_increase () {
+          
+      }
 
 
 
@@ -349,6 +353,7 @@
           // INIT
           set_resource();
           show_status();
+          setInterval(natural_increase, 1000);
           $('#version').text(VERSION);
       });
     </script>
