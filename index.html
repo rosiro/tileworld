@@ -20,8 +20,17 @@
       .block_mini {
           width:18px;
           height:18px;
-          margin-top:4px;
+          margin-top:2px;
           margin-left:6px;
+          margin-right:6px;
+          float:left;
+      }
+      .block_small {
+          width:24px;
+          height:24px;
+          margin-top:2px;
+          margin-left:6px;
+          margin-right:6px;
           float:left;
       }
       .block_resource_name {
@@ -56,7 +65,7 @@
           display:block;
           text-align:center;
       }
-      .sand {
+      .sandy {
           background-color:#bdb35e;
           display:block;
           text-align:center;
@@ -116,6 +125,13 @@
           display:block;
           text-align:center;
       }
+      .item_block {
+          background-color:gray;
+          display:block;
+          text-align:center;
+          font-weight: bold;
+          color:white;
+      }
       .blockClickanim {
           animation-name: colortowhite;
           animation-duration: 4s;
@@ -137,6 +153,7 @@
         <div class="col-md-9">
           <div id="field" class="area"></div>
           <div id="animal" class="area"><h2>動物</h2></div>
+          <div id="animal" class="area"><h2>動物</h2></div>
 
           <br clear="all">
           <div id="building"><h2>建造物</h2></div>
@@ -157,6 +174,7 @@
 	    <div class="col-md-3">
           <div id="resource_status" ></div>
           <div id="skill_status" ></div>
+          <div id="item_status" ></div>
 	    </div>
       </div>
       <div id="footer">
@@ -167,9 +185,13 @@
     <script src="static/js/jquery-3.6.0.min.js"></script>
     <script>
       const VERSION = '2021.12.6';
+      var item = {
+	      "stone axe": { "name_ja":"石斧", "name_en":"stone axe", "show":false, addnum: 0, num:0, mustitem: [ { "item": "stone", num:3 }, { "item": "wood", num:1 }] },
+	      "pickaxe": { "name_ja":"つるはし", "name_en":"pickaxe", "show":false, addnum: 0, num:0 },
+      };
       var skill = {
-	      "Lumberjack" : { "name_ja":"木こり", "name_en":"Lumberjack", "show":true, level:1, next: 10, exp:0 },
-	      "mining" : { "name_ja":"採掘", "name_en":"mining", "show":true, level:1, next:20, exp:0 },
+	      "Lumberjack": { "name_ja":"木こり", "name_en":"Lumberjack", "show":true, level:1, next: 10, exp:0 },
+	      "mining": { "name_ja":"採掘", "name_en":"mining", "show":false, level:1, next:20, exp:0 },
       };
       var resource = {
           "glass": {
@@ -190,11 +212,19 @@
           },
           "soil": {
               "name_ja" : '土', "name_en" : 'soil', "show": true, "field": true, "type": "field", "time": 1000, "value": 0, "nis": 0, "zaiko":20, "zaikomax":10,
-              "gets": [ { 'item': 'clay', "val": 1, "probability": 10, "skill":"" }, { 'item': 'coal', "val": 1,  "probability": 10, "skill":"" } ],
+              "gets": [ { 'item': 'clay', "val": 1, "probability": 20, "skill":"" }, { 'item': 'coal', "val": 1,  "probability": 10, "skill":"" }, { 'item': 'stone', "val": 1,  "probability": 30, "skill":"" } ],
+          },
+          "sandy": {
+              "name_ja" : '砂地', "name_en" : 'sandy', "show": true, "field": true, "type": "field", "time": 1000, "value": 0, "nis": 0, "zaiko":10, "zaikomax":10,
+              "gets": [ { 'item': 'sand', "val": 1, "probability": 100, "skill":"" } ],
+          },
+          "stone": {
+              "name_ja" : '石', "name_en" : 'stone', "show": true, "field": true, "type": "item", "time": 1000, "value": 0, "nis": 0, "zaiko":10, "zaikomax":10,
+              "gets": [ ],
           },
           "sand": {
-              "name_ja" : '砂', "name_en" : 'sand', "show": true, "field": true, "type": "field", "time": 1000, "value": 0, "nis": 0, "zaiko":10, "zaikomax":10,
-              "gets": [  ],
+              "name_ja" : '砂', "name_en" : 'sand', "show": true, "field": false, "type": "item", "time": 1000, "value": 0, "nis": 0, "zaiko":10, "zaikomax":10,
+              "gets": [ ],
           },
           "clay": {
               "name_ja" : '粘土', "name_en" : 'clay', "show": false, "field": false, "type": "item", "time": 1000, "value": 0, "nis": 0, "zaiko":0, "zaikomax":10,
@@ -263,6 +293,15 @@
               }
           }
           $('#skill_status').html(skill_html);
+
+          // item
+          var item_html = '<h2>アイテム</h2>';
+          for (let key in item) {
+              if(item[key].show == true){
+                  item_html += '<div><div class="block_small item_block"></div>' + item[key].name_ja + ' ' + item[key].num + '</div>';
+              }
+          }
+          $('#item_status').html(item_html);
       }
 
       function add_resource_value(resource_key, add_val){
@@ -302,39 +341,44 @@
       }
       
       function skillbonus(req_skill){
-          console.log("skillbonus " + skill);
-          let bonus = 0;
+          console.log("skillbonus " + req_skill);
+          let bonus = 1;
           var this_skill = skill[req_skill];
-          if(this_skill != ""){
+          if(req_skill && this_skill != ""){
+              console.log("skill level " + this_skill.level);
               // "Lumberjack" : { "name_ja":"木こり", "name_en":"Lumberjack", "show":true, value:1, level:1, exp:0 },
               if(this_skill.level == 0){
-                  bonus = 30;
+                  bonus = 0;
               }
               else if(0 < this_skill.level && this_skill.level < 20){
-                  bonus = 40;
+                  bonus = 1.5 + (this_skill.level * 0.1);
               }
               else if(20 < this_skill.level && this_skill.level < 40){
-                  bonus = 50;
+                  bonus = 2;
               }
               else if(40 < this_skill.level && this_skill.level < 60){
-                  bonus = 55;
+                  bonus = 3;
               }
               else if(60 < this_skill.level && this_skill.level < 80){
-                  bonus = 60;
+                  bonus = 4;
               }
               else if(80 < this_skill.level && this_skill.level < 100){
-                  bonus = 65;
+                  bonus = 5;
               }
               else if(this_skill.level = 100){
-                  bonus = 70;
+                  bonus = 8;
               }
-              skill[req_skill].exp = skill[req_skill].exp + 1;
-              console.log("up exp " + skill[req_skill].exp);
-              if(skill[req_skill].exp >= skill[req_skill].next ){
-                  skill[req_skill].level++;
-                  skill[req_skill].exp = 0;
-                  skill[req_skill].next = skill[req_skill].next * skill[req_skill].level;
-                  console.log("level up! " + skill[req_skill].level + " next level " + skill[req_skill].next);
+
+              // EXP AND LEVELUP CHECK
+              if(skill[req_skill].show == true){
+                  skill[req_skill].exp = skill[req_skill].exp + 1;
+                  console.log("up exp " + skill[req_skill].exp);
+                  if(skill[req_skill].exp >= skill[req_skill].next ){
+                      skill[req_skill].level++;
+                      skill[req_skill].exp = 0;
+                      skill[req_skill].next = skill[req_skill].next * skill[req_skill].level;
+                      console.log("level up! " + skill[req_skill].level + " next level " + skill[req_skill].next);
+                  }
               }
           }
           if(bonus >= 100) bonus = 100;
@@ -352,10 +396,12 @@
               // ADD VAL
               const gets = resource[clicked_resource].gets;
               gets.forEach(function(getitem){
+                  // GET 
                   let skill_bonus = skillbonus(getitem.skill);
-                  let strike = 100 / getitem.probability + skill_bonus;
+                  let strike = 100 / (getitem.probability * skill_bonus);
+                  if(strike < 1) strike = 1;
                   let randomnum = getRandomInt(1,strike);
-                  debug += 'getitem? ' + getitem.item + ' ' + getitem.probability + '%<br>';
+                  debug += 'getite? ' + getitem.item + ' ' + getitem.probability + '% skill_bonus:' + skill_bonus + ' strike:' + strike + '<br>';
                   if(randomnum == 1 || strike == 1){
                       if(resource[getitem.item].show == false ) resource[getitem.item].show = true;
                       var getitem_val = getitem.val;
@@ -365,9 +411,27 @@
                       }
                       add_resource_value(getitem.item, getitem_val);
                   }
+                  else{
+                      debug += ' cant get ';
+                  }
+
+                  // CAN MAKE ITEM?
+                  for (let this_item in item) {
+                      let canmake_flg = false;
+                      for (let this_must_item_key in item[this_item].mustitem) {
+                          if(resource[item[this_item].mustitem[this_must_item_key].item].value >= item[this_item].mustitem[this_must_item_key].num){
+                              canmake_flg = true;
+                          }
+                          else{
+                              canmake_flg = false;
+                          }
+                      }
+                      if(canmake_flg == true){
+                          item[this_item].show = true;
+                      }
+                  }
               });
               remove_zaiko_value(clicked_resource,1);
-
           }
 
           set_resource();
